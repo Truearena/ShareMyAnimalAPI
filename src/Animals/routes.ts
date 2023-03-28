@@ -1,12 +1,13 @@
 import express from 'express'
 import utils from '../utils';
 import { AnimalModel, IAnimal } from './models';
-import { body, check, checkSchema, Location, param } from 'express-validator';
+import { body, check, checkSchema, Location, param, Schema } from 'express-validator';
 import mongoose from 'mongoose';
 
 const router = express.Router();
+const PATH = '/api/v1/animals';
 
-router.post('/api/v1/animals',
+router.post(`${PATH}`,
   body('breeds').exists().isArray(),
   body('category').exists().isString().isLength({ max: 128 }),
   check('breeds.*').isString().isLength({ max: 128 }),
@@ -24,7 +25,7 @@ router.post('/api/v1/animals',
     }
   });
 
-router.put('/api/v1/animals/:id',
+router.put(`${PATH}/:id`,
   param('id').exists().withMessage('URI requires animal id'),
   check('breeds').optional().isArray(),
   check('category').optional().isString().isLength({ max: 128 }),
@@ -44,16 +45,17 @@ router.put('/api/v1/animals/:id',
     }
   });
 
-router.get('/api/v1/animals',
+router.get(`${PATH}`,
   checkSchema({
     "sorting": {
       in: ['query'] as Location[],
       matches: {
         options: /\b(?:oldest|mostrecent)\b/,
         errorMessage: "Invalid sorting"
-      }
+      },
+      optional: true,
     }
-  }),
+  } as Schema),
   async (req: express.Request, res: express.Response) => {
     if (utils.VALIDATION.isError(req, res)) { return; }
     const animals = await AnimalModel.find({});
