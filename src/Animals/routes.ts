@@ -1,7 +1,8 @@
 import express from 'express'
 import utils from '../utils';
-import { AnimalModel } from './models';
-import { body, check, checkSchema, validationResult, Location } from 'express-validator';
+import { AnimalModel, IAnimal } from './models';
+import { body, check, checkSchema, Location, param } from 'express-validator';
+import mongoose from 'mongoose';
 
 const router = express.Router();
 
@@ -18,6 +19,26 @@ router.post('/api/v1/animals',
     try {
       await animal.save()
       return (res.status(utils.STATUS.Created).send(animal));
+    } catch (err) {
+      return (res.status(utils.STATUS.InternError).send(err));
+    }
+  });
+
+router.put('/api/v1/animals/:id',
+  param('id').exists().withMessage('URI requires animal id'),
+  check('breeds').optional().isArray(),
+  check('category').optional().isString().isLength({ max: 128 }),
+  check('breeds.*').optional().isString().isLength({ max: 128 }),
+  async (req: express.Request, res: express.Response) => {
+    if (utils.VALIDATION.isError(req, res)) { return; }
+    try {
+      await AnimalModel.updateOne({
+        _id: new mongoose.mongo.ObjectId(req.params?.['id']),
+      }, {
+        ...req.body,
+        updateDate: new Date(),
+      } as IAnimal)
+      return (res.status(utils.STATUS.Success).send());
     } catch (err) {
       return (res.status(utils.STATUS.InternError).send(err));
     }
