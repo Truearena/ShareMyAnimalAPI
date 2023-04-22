@@ -56,7 +56,7 @@ router.post(
             return res.status(utils.STATUS.Created).send({
                 refresh_token: await Token.generate_refresh_token(user),
                 access_token: await Token.generate_access_token(user),
-                expires_in: "1800s",
+                expires_in: "18000s",
                 token_type: "Bearer",
             });
         } catch (err) {
@@ -79,12 +79,14 @@ router.post(
         });
         try {
             user = await find_user_by_email(user);
-            if (await Crypt.compare_password(req.body.password, user.password))
+            console.log(req.body.password)
+            console.log(user.password)
+            if (await Crypt.compare_password(req.body.password, user.password) === false)
                 throw { error: { msg: "Bad password" } };
             return res.status(utils.STATUS.Created).send({
                 refresh_token: await Token.generate_refresh_token(user),
                 access_token: await Token.generate_access_token(user),
-                expires_in: "1800s",
+                expires_in: "18000s",
                 token_type: "Bearer",
             });
         } catch (err) {

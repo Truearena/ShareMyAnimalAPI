@@ -1,5 +1,5 @@
 import express from 'express'
-import utils from '../utils';
+import utils, { getUserByToken } from '../utils';
 import { AnimalModel, IAnimal } from './models';
 import { body, check, checkSchema, Location, param, Schema } from 'express-validator';
 import mongoose from 'mongoose';
@@ -12,7 +12,11 @@ router.post(`${PATH}`,
   body('category').exists().isString().isLength({ max: 128 }),
   check('breeds.*').isString().isLength({ max: 128 }),
   async (req: express.Request, res: express.Response) => {
+    /* ADMIN ROUTE */
+    if (await utils.AUTHORIZATION.cannotUseAdminRoutes(req, res)) { return; }
     if (utils.VALIDATION.isError(req, res)) { return; }
+    /* ----------- */
+  
     const animal = new AnimalModel({
       breeds: req.body.breeds,
       category: req.body.category,
@@ -31,7 +35,11 @@ router.put(`${PATH}/:id`,
   check('category').optional().isString().isLength({ max: 128 }),
   check('breeds.*').optional().isString().isLength({ max: 128 }),
   async (req: express.Request, res: express.Response) => {
+    /* ADMIN ROUTE */
+    if (await utils.AUTHORIZATION.cannotUseAdminRoutes(req, res)) { return; }
     if (utils.VALIDATION.isError(req, res)) { return; }
+    /* ----------- */
+  
     try {
       await AnimalModel.updateOne({
         _id: new mongoose.mongo.ObjectId(req.params?.['id']),
@@ -57,9 +65,14 @@ router.get(`${PATH}`,
     }
   } as Schema),
   async (req: express.Request, res: express.Response) => {
+    /* GUEST ROUTE */
     if (utils.VALIDATION.isError(req, res)) { return; }
+    /* ----------- */
+  
     const animals = await AnimalModel.find({});
 
+    const x = await getUserByToken(req);
+    console.log(x);
     return res.send(animals.sort((a, b) => {
       if (req.query?.['sorting'] === 'mostrecent') {
         return (+b.creationDate - +a.creationDate);

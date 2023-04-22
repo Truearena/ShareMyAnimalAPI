@@ -5,6 +5,7 @@ export interface IUser {
     username: string;
     email: string;
     password: string;
+    role: 'user' | 'admin';
     creationDate: Date;
     updateDate?: Date;
 }
@@ -25,6 +26,10 @@ export const UserSchema = new mongoose.Schema({
     creationDate: {
         type: Date,
         default: Date.now,
+    },
+    role: {
+        type: String,
+        default: 'user',
     },
     updateDate: {
         type: Date,
