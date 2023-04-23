@@ -29,6 +29,27 @@ router.post(`${PATH}`,
     }
   });
 
+  router.delete(`${PATH}/:id`,
+  param('id').exists().withMessage('URI requires animal id'),
+  async (req: express.Request, res: express.Response) => {
+    /* ADMIN ROUTE */
+    if (await utils.AUTHORIZATION.cannotUseAdminRoutes(req, res)) { return; }
+    if (utils.VALIDATION.isError(req, res)) { return; }
+    /* ----------- */
+  
+    try {
+      await AnimalModel.deleteOne({
+        _id: new mongoose.mongo.ObjectId(req.params?.['id']),
+      }, {
+        ...req.body,
+        updateDate: new Date(),
+      } as IAnimal)
+      return (res.status(utils.STATUS.Success).send());
+    } catch (err) {
+      return (res.status(utils.STATUS.InternError).send(err));
+    }
+  });
+
 router.put(`${PATH}/:id`,
   param('id').exists().withMessage('URI requires animal id'),
   check('breeds').optional().isArray(),
