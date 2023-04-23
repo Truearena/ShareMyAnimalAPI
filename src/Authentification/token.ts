@@ -8,7 +8,7 @@ export const Token = {
             { _id: user._id!.toString() },
             process.env.ACCESS_TOKEN_SECRET as string,
             {
-                expiresIn: "1800s",
+                expiresIn: "18000s",
             }
         );
     },

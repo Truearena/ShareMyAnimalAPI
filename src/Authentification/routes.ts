@@ -79,11 +79,9 @@ router.post(
         });
         try {
             user = await find_user_by_email(user);
-            console.log(req.body.password)
-            console.log(user.password)
             if (await Crypt.compare_password(req.body.password, user.password) === false)
                 throw { error: { msg: "Bad password" } };
-            return res.status(utils.STATUS.Created).send({
+            return res.status(utils.STATUS.Success).send({
                 refresh_token: await Token.generate_refresh_token(user),
                 access_token: await Token.generate_access_token(user),
                 expires_in: "18000s",

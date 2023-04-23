@@ -38,12 +38,16 @@ router.post(`${PATH}`,
     /* ----------- */
   
     try {
-      await AnimalModel.deleteOne({
+      const resultDelete = await AnimalModel.deleteOne({
         _id: new mongoose.mongo.ObjectId(req.params?.['id']),
-      }, {
-        ...req.body,
-        updateDate: new Date(),
-      } as IAnimal)
+      })
+      if (resultDelete.deletedCount !== 1) {
+        return (res.status(utils.STATUS.NotFound).send({
+          err: {
+            msg: "Animal not found.",
+          }
+        }))
+      }
       return (res.status(utils.STATUS.Success).send());
     } catch (err) {
       return (res.status(utils.STATUS.InternError).send(err));
@@ -62,13 +66,29 @@ router.put(`${PATH}/:id`,
     /* ----------- */
   
     try {
-      await AnimalModel.updateOne({
+      const updateResult = await AnimalModel.updateOne({
         _id: new mongoose.mongo.ObjectId(req.params?.['id']),
       }, {
         ...req.body,
         updateDate: new Date(),
       } as IAnimal)
-      return (res.status(utils.STATUS.Success).send());
+      if (updateResult.matchedCount !== 1) {
+        return (res.status(utils.STATUS.NotFound).send({
+          err: {
+            msg: "Unable to find this animal."
+          }
+        }));
+      } else if (updateResult.modifiedCount !== 1) {
+        return (res.status(utils.STATUS.InternError).send({
+          err: {
+            msg: "No changes have been made."
+          }
+        }));
+      }
+      const animal = await AnimalModel.findOne({
+        _id: new mongoose.mongo.ObjectId(req.params?.['id']),
+      })
+      return (res.status(utils.STATUS.Success).send(animal));
     } catch (err) {
       return (res.status(utils.STATUS.InternError).send(err));
     }
@@ -91,9 +111,6 @@ router.get(`${PATH}`,
     /* ----------- */
   
     const animals = await AnimalModel.find({});
-
-    const x = await getUserByToken(req);
-    console.log(x);
     return res.send(animals.sort((a, b) => {
       if (req.query?.['sorting'] === 'mostrecent') {
         return (+b.creationDate - +a.creationDate);
