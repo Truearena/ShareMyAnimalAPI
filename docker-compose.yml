@@ -1,0 +1,21 @@
+version: "3.7"
+services:
+  database:
+    container_name: animal_db
+    image: mongo:latest
+    ports:
+      - '27018:27018'
+    volumes:
+      - ./database:/database
+    networks:
+      - backend
+    restart: always
+    logging:
+      driver: none
+
+volumes:
+  database:
+
+networks:
+  backend:
+    driver: bridge

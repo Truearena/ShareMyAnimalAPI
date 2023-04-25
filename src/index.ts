@@ -5,7 +5,7 @@ import routes from "./routes";
 import dotenv from "dotenv";
 
 const PORT = 80;
-const MONGO_URI = "mongodb://localhost:27017/shareMyAnimal";
+const MONGO_URI = "mongodb://localhost:27018/shareMyAnimal";
 
 dotenv.config();
 
