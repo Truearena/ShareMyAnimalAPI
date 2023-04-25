@@ -8,8 +8,6 @@ services:
     volumes:
       - ./database:/database
     restart: always
-    logging:
-      driver: none
 
 volumes:
   database:
