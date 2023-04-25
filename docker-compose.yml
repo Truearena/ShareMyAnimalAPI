@@ -8,15 +8,9 @@ services:
     volumes:
       - ./database:/database
       - ./default.conf:/etc/nginx/conf.d/default.conf
-    networks:
-      - backend
     restart: always
     logging:
       driver: none
 
 volumes:
   database:
-
-networks:
-  backend:
-    driver: bridge
