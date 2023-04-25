@@ -4,7 +4,7 @@ import mongoose from "mongoose";
 import routes from "./routes";
 import dotenv from "dotenv";
 
-const PORT = 80;
+const PORT = 8080;
 const MONGO_URI = "mongodb://localhost:27017/shareMyAnimal";
 
 dotenv.config();
